@@ -66,16 +66,22 @@ namespace RevorbStd
         {
             try
             {
-                using (Stream file = File.OpenRead(args[0]))
+                string fileName = args[0];
+                fileName = @"\\?\" + fileName;
+                MemoryStream ms = new MemoryStream();
+                using (Stream file = File.OpenRead(fileName))
                 {
                     using (Stream data = Jiggle(file))
                     {
-                        using (Stream outp = File.OpenWrite(args[1]))
-                        {
-                            data.Position = 0;
-                            data.CopyTo(outp);
-                        }
+                        data.Position = 0;
+                        data.CopyTo(ms);
                     }
+                }
+
+                using (Stream file = File.Open(fileName, FileMode.Truncate))
+                {
+                    ms.Position = 0;
+                    ms.CopyTo(file);
                 }
             }
             catch (Exception e)
